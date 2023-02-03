@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  backend:
+    build: backend
+    command: ["gunicorn", "-w", "4", "-b", "0.0.0.0", "app:app"]
+    volumes:
+      - ./backend:/backend
+    ports:
+      - 8000:8000
+
+  frontend:
+    build: frontend
+    command: [ "npm", "start" ]
+    volumes:
+      - ./frontend:/frontend
+      - node-modules:/frontend/node_modules
+    environment:
+      - NODE_ENV=development
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+
+volumes:
+  node-modules:
