@@ -9,7 +9,7 @@ function NavBar() {
   return (
     <Navbar bg="light" expand="lg">
       <Container>
-        <Navbar.Brand href="#home"><img src={logo}></img></Navbar.Brand>
+        <Navbar.Brand href="#home"><img className="text-left" src={logo}></img></Navbar.Brand>
         
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className="flex-column align-items-end">
