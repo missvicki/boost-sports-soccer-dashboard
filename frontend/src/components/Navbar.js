@@ -14,11 +14,11 @@ function NavBar() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className="flex-column align-items-end">
           <Nav>
-            <Nav.Link href="#content">Content</Nav.Link>
-            <Nav.Link href="#scouting">Scouting</Nav.Link>
-            <Nav.Link href="#boostVision">boostVision</Nav.Link>
-            <Nav.Link href="#team">Team</Nav.Link>
-            <Nav.Link href="#sales">SALES</Nav.Link>
+            <Nav.Link href="#soccer">Soccer</Nav.Link>
+            <Nav.Link href="#basketball">Basketball</Nav.Link>
+            <Nav.Link href="#volleyball">Volleyball</Nav.Link>
+            <Nav.Link href="#tennis">Tennis</Nav.Link>
+            <Nav.Link href="#football">Football</Nav.Link>
             {/*<NavDropdown title="Dropdown" id="basic-nav-dropdown">
               <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
               <NavDropdown.Item href="#action/3.2">
