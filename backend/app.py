@@ -39,10 +39,10 @@ def get_data():
         response = s3_client.get_object(
             Bucket=AWS_S3_BUCKET, Key="sample_results.csv"
         )
-
-        status = response.get("ResponseMetadata", {}).get("HTTPStatusCode")
     except Exception as e:
         print(e, "Ooooppsss something happened")
+        
+    status = response.get("ResponseMetadata", {}).get("HTTPStatusCode")
 
     if status == 200:
         print(f"Successful S3 get_object response. Status - {status}")
@@ -71,3 +71,4 @@ def fetch_standings():
         return jsonify({"data": standings_df}), 200
     else:
         return jsonify({"message": "There are no standings"}), 404
+    
