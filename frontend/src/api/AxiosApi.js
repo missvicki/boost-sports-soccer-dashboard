@@ -34,7 +34,6 @@ class AxiosAPi{
     
     /**
      * @param {method} method - method (GET, POST, UPDATE, DELETE)
-     * @param {service} service to be accessed in the backend for example user or forms
      * @param {endpoint} endpoint for example "/login", "/createUser", "deleteForms"
      * @param {queries} queries for example "?name=James&age=2" or "?number=234"
      * @param {options} options used by axios request 
@@ -46,11 +45,11 @@ class AxiosAPi{
      *              }
      *      }
      * */ 
-    async apiRequest(method='GET', service='', endpoint, data=null, queries='', options={}){
+    async apiRequest(method='GET', endpoint, data=null, queries='', options={}){
         const baseURL = `${this.host}/${this._apiVersion}/`;
         const axiosInstance = this.createInstance(baseURL);
-        let url = service;
-        url = endpoint ? `${service}/${endpoint}` : url;
+        let url = "";
+        url = endpoint ? `${endpoint}` : url;
         url = queries ? `${url}/${queries}`: url;
 
         const configs = {
@@ -59,10 +58,6 @@ class AxiosAPi{
             data,
             ...options
         };
-        if(authenticated){
-            const token = localStorage.getItem('token')
-            configs.headers = { ...configs.headers, "Authorization": `Bearer ${token}`}
-        }
 
         return await axiosInstance(configs);
     }

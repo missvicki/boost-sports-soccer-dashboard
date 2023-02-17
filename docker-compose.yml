@@ -16,7 +16,6 @@ services:
     command: [ "npm", "start" ]
     volumes:
       - ./frontend:/frontend
-      - node-modules:/frontend/node_modules
     environment:
       - NODE_ENV=development
     ports:
@@ -24,5 +23,3 @@ services:
     depends_on:
       - backend
 
-volumes:
-  node-modules:
