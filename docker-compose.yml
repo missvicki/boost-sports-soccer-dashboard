@@ -7,13 +7,15 @@ services:
       - ./backend:/backend
     ports:
       - 8000:8000
+    env_file:
+      - backend/.env
+      - frontend/.env
 
   frontend:
     build: frontend
     command: [ "npm", "start" ]
     volumes:
       - ./frontend:/frontend
-      - node-modules:/frontend/node_modules
     environment:
       - NODE_ENV=development
     ports:
@@ -21,5 +23,3 @@ services:
     depends_on:
       - backend
 
-volumes:
-  node-modules:
