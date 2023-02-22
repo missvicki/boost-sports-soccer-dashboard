@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 
 import Table from 'react-bootstrap/Table';
-import Dropdown from 'react-bootstrap/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown'
+import DropdownDown from './DropdownClass';
 import '../styles/table.css';
 import resultsActions from '../redux/actions/results.actions';
 
@@ -31,18 +32,9 @@ function Results() {
                         <th></th>
                         <th></th>
                         <th></th>
-                        <th></th>
+                        <th><DropdownDown name="Gender" itemList={["Male", "Female"]} /></th>
                         <th>
-                            <Dropdown>
-                                <Dropdown.Toggle variant="" id="dropdown-basic">
-                                    Season / Year
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu>
-                                    <Dropdown.Item href="#/action-1">2020</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-2">2021</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-3">2022</Dropdown.Item>
-                                </Dropdown.Menu>
-                            </Dropdown>
+                            <DropdownDown name="Season/Year" itemList={[2020, 2021, 2022]} />
                         </th>
                     </tr>
                     <tr>
