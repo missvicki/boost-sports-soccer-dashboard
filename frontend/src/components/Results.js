@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 
 import Table from 'react-bootstrap/Table';
+import Pagination from 'react-bootstrap/Pagination';
 import '../styles/table.css';
 import { resultsActions } from '../redux/actions/results.actions';
 
@@ -12,12 +13,25 @@ function Results() {
     const dispatch = useDispatch();
     const { data, } = useSelector(state => ({ ...state.resultsState }));
     const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 15
 
     useEffect(() => {
         setLoading(true)
         dispatch(resultsActions());
         setLoading(false)
     }, [dispatch])
+
+    const totalPages = Math.ceil(data && data.length / itemsPerPage);
+
+    const handleClick = (page) => {
+        setCurrentPage(page);
+    };
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+
+    const currentData = data && data.slice(startIndex, endIndex);
 
 
     return (
@@ -26,7 +40,7 @@ function Results() {
                 <Header />
                 {loading ? (
                     <p>Loading...</p>
-                ) : (
+                ) : (<div>
                     < Table responsive className='results-table' size="sm">
                         <thead>
                             <tr>
@@ -41,8 +55,8 @@ function Results() {
                         </thead>
 
                         <tbody>
-                            {data &&
-                                data.map((row, index) => (
+                            {currentData &&
+                                currentData.map((row, index) => (
                                     <tr key={index}>
                                         <td>{row.Poll_Ranking_8}</td>
                                         <td><a href="#">{row.team_name}</a></td>
@@ -56,6 +70,18 @@ function Results() {
                         </tbody>
 
                     </Table>
+                    <Pagination>
+                        {[...Array(totalPages)].map((_, index) => (
+                            <Pagination.Item
+                                key={index}
+                                active={index + 1 === currentPage}
+                                onClick={() => handleClick(index + 1)}
+                            >
+                                {index + 1}
+                            </Pagination.Item>
+                        ))}
+                    </Pagination>
+                </div>
                 )}
             </Container>
         </div >
