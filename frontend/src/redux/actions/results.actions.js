@@ -14,9 +14,8 @@ export const resultsActions = (gender, year, week) => async (dispatch) => {
             response = await ApiHandler.apiRequest('GET', 'standings', '', '', false)
         }
         let data = response.data
-
         if (response.status == 200){
-            return dispatch(createAction(FETCH_STANDINGS_SUCCESS, { data: data }))
+            return dispatch(createAction(FETCH_STANDINGS_SUCCESS, { data: data}))
         }else{
             return dispatch(createAction(FETCH_STANDINGS_FAILURE, data))
         }

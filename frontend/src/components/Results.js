@@ -12,10 +12,13 @@ function Results() {
     const [currentPage, setCurrentPage] = useState(1);
     const [genders, setGenders] = useState(["Select Gender", "Men", "Women"]);
     const [years, setYears] = useState(["Select Year", 2020, 2021, 2022]);
-    const [weeks, setWeeks] = useState(["Select Week", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
+    const [weeks, setWeeks] = useState([]);
     const [selectedGender, setSelectedGender] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
     const [selectedWeek, setSelectedWeek] = useState('');
+    const [disabledYear, setDisabledYear] = useState(true);
+    const [disabledWeek, setDisabledWeek] = useState(true);
+
     const itemsPerPage = 20
 
     useEffect(() => {
@@ -26,7 +29,7 @@ function Results() {
             dispatch(resultsActions())
         }
         setLoading(false)
-    }, [dispatch, selectedGender, selectedYear, selectedWeek])
+    }, [selectedGender, selectedYear, selectedWeek])
 
     const totalPages = Math.ceil(data && data.length / itemsPerPage);
 
@@ -54,6 +57,11 @@ function Results() {
                         setSelectedWeek={setSelectedWeek}
                         setSelectedYear={setSelectedYear}
                         setSelectedGender={setSelectedGender}
+                        disabledWeek={disabledWeek}
+                        setDisabledWeek={setDisabledWeek}
+                        disabledYear={disabledYear}
+                        setDisabledYear={setDisabledYear}
+                        setWeeks={setWeeks}
                     />
                     {loading ? (
                         <div>
@@ -90,6 +98,11 @@ function Results() {
                     setSelectedWeek={setSelectedWeek}
                     setSelectedYear={setSelectedYear}
                     setSelectedGender={setSelectedGender}
+                    disabledWeek={disabledWeek}
+                    setDisabledWeek={setDisabledWeek}
+                    disabledYear={disabledYear}
+                    setDisabledYear={setDisabledYear}
+                    setWeeks={setWeeks}
                 />
                 {loading ? (
                     <p>Loading...</p>
@@ -108,24 +121,21 @@ function Results() {
                         </thead>
 
                         <tbody>
-                            {currentData &&
+                            {currentData && (typeof currentData === 'object') &&
                                 currentData.map((row, index) => {
-                                    if ((row[`Poll_Ranking_${selectedWeek}`])) {
-                                        return (
-                                            <tr key={index}>
-                                                <td>{row[`Poll_Ranking_${selectedWeek}`]}</td>
-                                                <td><a href="#">{row.team_name}</a></td>
-                                                <td>{row.number_matches}</td>
-                                                <td>{row.wins}</td>
-                                                <td>{row.draws}</td>
-                                                <td>{row.losses}</td>
-                                                <td>{row.total_goals}</td>
-                                            </tr>
-                                        );
-                                    } else {
-                                        return null;
-                                    }
+                                    return (
+                                        <tr key={index}>
+                                            <td>{row[`Poll_Ranking_${selectedWeek}`]}</td>
+                                            <td><a href="#">{row.team_name}</a></td>
+                                            <td>{row.number_matches}</td>
+                                            <td>{row.wins}</td>
+                                            <td>{row.draws}</td>
+                                            <td>{row.losses}</td>
+                                            <td>{row.total_goals}</td>
+                                        </tr>
+                                    );
                                 })}
+
                         </tbody>
 
                     </Table>

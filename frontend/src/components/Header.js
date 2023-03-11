@@ -2,12 +2,35 @@ import React, { useState } from 'react';
 import { Container, Row, Col, DropdownButton, Dropdown } from 'react-bootstrap';
 
 function Header(props) {
+    const years_weeks = {
+        "men_2020": 19,
+        "men_2021": 12,
+        "men_2022": 7,
+        "women_2020": 19,
+        "women_2021": 13,
+        "women_2022": 8,
+    }
+
     const handleGenderSelect = (gender) => {
         props.setSelectedGender(gender);
+        if (gender === "Select Gender") {
+            props.setDisabledYear(true);
+        } else {
+            props.setWeeks([])
+            props.setDisabledYear(false);
+        }
     };
 
     const handleYearSelect = (year) => {
         props.setSelectedYear(year);
+        if (year === "Select Year") {
+            props.setDisabledWeek(true);
+        } else {
+            const gender_year = `${props.selectedGender.toLowerCase()}_${year}`
+            const weeks = years_weeks[gender_year]
+            props.setWeeks(Array.from({length:`${weeks}`},(v,k)=>k+1))
+            props.setDisabledWeek(false);
+        }
     };
 
     const handleWeekSelect = (week) => {
@@ -30,14 +53,15 @@ function Header(props) {
                     </DropdownButton>
                 </Col>
                 <Col>
-                    <DropdownButton id="dropdown-basic-button" variant='' title={props.selectedYear || 'Select Year'} onSelect={handleYearSelect}>
+                    <DropdownButton disabled={props.disabledYear} id="dropdown-basic-button" variant='' title={props.selectedYear || 'Select Year'} onSelect={handleYearSelect}>
                         {props.years.map(year => (
                             <Dropdown.Item key={year} eventKey={year}>{year}</Dropdown.Item>
                         ))}
                     </DropdownButton>
                 </Col>
                 <Col>
-                    <DropdownButton id="dropdown-basic-button" variant='' title={props.selectedWeek || 'Select Week'} onSelect={handleWeekSelect}>
+                    {props.disabled}
+                    <DropdownButton disabled={props.disabledWeek} id="dropdown-basic-button" variant='' title={props.selectedWeek || 'Select Week'} onSelect={handleWeekSelect}>
                         {props.weeks.map(week => (
                             <Dropdown.Item key={week} eventKey={week}>{week}</Dropdown.Item>
                         ))}

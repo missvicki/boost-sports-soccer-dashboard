@@ -81,9 +81,20 @@ def fetch_standings():
         filtered_df = filtered_df[
             filtered_df[f"Poll_Ranking_{week}"].notnull()
         ].sort_values(f"Poll_Ranking_{week}")
-        return jsonify(filtered_df.to_dict(orient="records")), 200
 
-    # return jsonify(data["dashboard_womens_2022"].to_dict(orient="records")), 200
+        data = filtered_df[
+            [
+                f"Poll_Ranking_{week}",
+                "number_matches",
+                "wins",
+                "losses",
+                "draws",
+                "total_goals",
+                "team_name",
+            ]
+        ].to_dict(orient="records")
+        return jsonify(data)
+
     return (
         jsonify(
             {
