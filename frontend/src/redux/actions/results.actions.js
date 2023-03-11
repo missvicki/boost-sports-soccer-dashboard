@@ -1,25 +1,21 @@
-import { FETCH_STANDINGS, FETCH_STANDINGS_FAILURE, FETCH_STANDINGS_SUCCESS } from '../types';
+import { FETCH_STANDINGS_REQUEST, FETCH_STANDINGS_FAILURE, FETCH_STANDINGS_SUCCESS } from '../types';
 import { createAction } from './helper.actions';
 import ApiHandler from '../../api/AxiosApi';
 
 
-const resultsActions = (dispatch) => {
-    const fetchResults = async () => {
-        dispatch(createAction(FETCH_STANDINGS))
-        try {
-            const response = await ApiHandler.apiRequest('GET', 'standings', undefined, false)
-            if (![200, 201].includes(response.status)) {
-                return dispatch(createAction(FETCH_STANDINGS_FAILURE, { error: response.data }))
-            }
-            return dispatch(createAction(FETCH_STANDINGS_SUCCESS, { data: response.data }))
-        } catch (error) {
-            dispatch(createAction(FETCH_STANDINGS_FAILURE, { error: error.message }))
-        }
-    };
+export const resultsActions = () => async (dispatch) => {
+    dispatch(createAction(FETCH_STANDINGS_REQUEST))
+    try {
+        const response = await ApiHandler.apiRequest('GET', 'standings', undefined, false)
+        let data = response.data
+        data = data.replace(/NaN/g, "null")
+        data = JSON.parse(data);
 
-    return {
-        fetchResults
+        if (![200, 201].includes(response.status)) {
+            return dispatch(createAction(FETCH_STANDINGS_FAILURE, { error: data }))
+        }
+        return dispatch(createAction(FETCH_STANDINGS_SUCCESS, { data: data }))
+    } catch (error) {
+        dispatch(createAction(FETCH_STANDINGS_FAILURE, { error: error.message }))
     }
 };
-
-export default resultsActions;

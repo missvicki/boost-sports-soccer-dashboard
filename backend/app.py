@@ -7,19 +7,13 @@ import os
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+
 def rename_columns(df):
     df.rename(
         columns={
-            "#": "rank",
-            "Team Name": "team_name",
-            "Draws": "draws",
-            "Goals": "goals",
-            "Wins": "wins",
-            "Losses": "losses",
-            "Matches Played": "matches_played",
-            "Points": "points",
-            "Form": "form"
-        }, inplace=True
+            "team_market.x": "team_name",
+        },
+        inplace=True,
     )
     return df
 
@@ -36,24 +30,30 @@ def get_data():
     )
 
     try:
-        response = s3_client.get_object(
-            Bucket=AWS_S3_BUCKET, Key="sample_results.csv"
-        )
+        objects = s3_client.list_objects_v2(Bucket=AWS_S3_BUCKET)["Contents"]
+
+        # read each CSV file into a pandas DataFrame and store it in a dictionary
+        dataframes = {}
+        for obj in objects:
+            # get the object key (file path) for the CSV file
+            file_path = obj["Key"]
+
+            # get a unique name for the DataFrame based on the file path
+            df_name = file_path.split("/")[-1].split(".")[0]
+
+            # read the CSV file into a pandas DataFrame
+            if df_name != "sample_results":
+                obj = s3_client.get_object(Bucket=AWS_S3_BUCKET, Key=file_path)
+                df = pd.read_csv(obj["Body"])
+                rename_columns(df)
+
+                # add the DataFrame to the dictionary with the unique name as the key
+                dataframes[df_name] = df
+
+        return dataframes
+
     except Exception as e:
         print(e, "Ooooppsss something happened")
-        
-    status = response.get("ResponseMetadata", {}).get("HTTPStatusCode")
-
-    if status == 200:
-        print(f"Successful S3 get_object response. Status - {status}")
-        standings = pd.read_csv(response.get("Body"))
-        standings_renamed = rename_columns(standings)
-        return standings_renamed
-    else:
-        print(f"Unsuccessful S3 get_object response. Status - {status}")
-        return None
-
-
 
 
 @app.route("/")
@@ -65,10 +65,12 @@ def hello_world():
 @app.route("/api/standings", methods=["GET"])
 def fetch_standings():
     """returns all standings"""
-    standings_df = get_data().to_dict(orient="records")
-
-    if standings_df:
-        return jsonify({"data": standings_df}), 200
+    if len(get_data()) != 0:
+        return (
+            jsonify(
+                get_data()["dashboard_womens_2022"].to_dict(orient="records")
+            ),
+            200,
+        )
     else:
         return jsonify({"message": "There are no standings"}), 404
-    
