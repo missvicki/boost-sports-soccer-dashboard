@@ -65,12 +65,41 @@ def hello_world():
 @app.route("/api/standings", methods=["GET"])
 def fetch_standings():
     """returns all standings"""
-    if len(get_data()) != 0:
-        return (
-            jsonify(
-                get_data()["dashboard_womens_2022"].to_dict(orient="records")
-            ),
-            200,
-        )
-    else:
+    gender = request.args.get("gender")
+    year = request.args.get("year")
+    week = request.args.get("week")
+    data = get_data()
+
+    if len(data) == 0:
         return jsonify({"message": "There are no standings"}), 404
+
+    if gender and year and week:
+        table_name = f"dashboard_{gender.lower()}s_{year}"
+        if table_name not in data:
+            return jsonify({"message": f"No data for {gender} {year}"}), 404
+        filtered_df = data[table_name].copy()
+        filtered_df = filtered_df[
+            filtered_df[f"Poll_Ranking_{week}"].notnull()
+        ].sort_values(f"Poll_Ranking_{week}")
+
+        data = filtered_df[
+            [
+                f"Poll_Ranking_{week}",
+                "number_matches",
+                "wins",
+                "losses",
+                "draws",
+                "total_goals",
+                "team_name",
+            ]
+        ].to_dict(orient="records")
+        return jsonify(data)
+
+    return (
+        jsonify(
+            {
+                "message": "Please select ALL dropdown fields for year, gender and week to view standings"
+            }
+        ),
+        404,
+    )

@@ -1,26 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-
-import Table from 'react-bootstrap/Table';
-import Pagination from 'react-bootstrap/Pagination';
+import { Pagination, Container, Row, Col, Table } from 'react-bootstrap';
 import '../styles/table.css';
 import { resultsActions } from '../redux/actions/results.actions';
-
-import Container from 'react-bootstrap/Container';
 import Header from './Header'
 
 function Results() {
     const dispatch = useDispatch();
-    const { data, } = useSelector(state => ({ ...state.resultsState }));
+    const { data, error } = useSelector(state => ({ ...state.resultsState }));
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 15
+    const [genders, setGenders] = useState(["Select Gender", "Men", "Women"]);
+    const [years, setYears] = useState(["Select Year", 2020, 2021, 2022]);
+    const [weeks, setWeeks] = useState([]);
+    const [selectedGender, setSelectedGender] = useState('');
+    const [selectedYear, setSelectedYear] = useState('');
+    const [selectedWeek, setSelectedWeek] = useState('');
+    const [disabledYear, setDisabledYear] = useState(true);
+    const [disabledWeek, setDisabledWeek] = useState(true);
+
+    const itemsPerPage = 20
 
     useEffect(() => {
         setLoading(true)
-        dispatch(resultsActions());
+        if (selectedGender && selectedYear && selectedWeek && selectedGender != "Select Gender" && selectedYear != "Select Year" && selectedWeek != "Select Week") {
+            dispatch(resultsActions(selectedGender, selectedYear, selectedWeek));
+        } else {
+            dispatch(resultsActions())
+        }
         setLoading(false)
-    }, [dispatch])
+    }, [selectedGender, selectedYear, selectedWeek])
 
     const totalPages = Math.ceil(data && data.length / itemsPerPage);
 
@@ -32,19 +41,76 @@ function Results() {
     const endIndex = startIndex + itemsPerPage;
 
     const currentData = data && data.slice(startIndex, endIndex);
+    const textStyle = { color: 'red' };
 
+    if (error) {
+        return (
+            <div>
+                <Container>
+                    <Header
+                        genders={genders}
+                        years={years}
+                        weeks={weeks}
+                        selectedWeek={selectedWeek}
+                        selectedGender={selectedGender}
+                        selectedYear={selectedYear}
+                        setSelectedWeek={setSelectedWeek}
+                        setSelectedYear={setSelectedYear}
+                        setSelectedGender={setSelectedGender}
+                        disabledWeek={disabledWeek}
+                        setDisabledWeek={setDisabledWeek}
+                        disabledYear={disabledYear}
+                        setDisabledYear={setDisabledYear}
+                        setWeeks={setWeeks}
+                    />
+                    {loading ? (
+                        <div>
+                            <Row>
+                                <Col>
+                                    <p>Loading Data ...</p>
+                                </Col>
+                            </Row>
+                        </div>
+                    ) : (
+                        <div>
+                            <Row>
+                                <Col>
+                                    <p style={textStyle}>{error}</p>
+                                </Col>
+                            </Row>
+                        </div>
+                    )}
+                </Container>
+            </div>
+        )
+    }
 
     return (
         <div>
             <Container>
-                <Header />
+                <Header
+                    genders={genders}
+                    years={years}
+                    weeks={weeks}
+                    selectedWeek={selectedWeek}
+                    selectedGender={selectedGender}
+                    selectedYear={selectedYear}
+                    setSelectedWeek={setSelectedWeek}
+                    setSelectedYear={setSelectedYear}
+                    setSelectedGender={setSelectedGender}
+                    disabledWeek={disabledWeek}
+                    setDisabledWeek={setDisabledWeek}
+                    disabledYear={disabledYear}
+                    setDisabledYear={setDisabledYear}
+                    setWeeks={setWeeks}
+                />
                 {loading ? (
                     <p>Loading...</p>
                 ) : (<div>
                     < Table responsive className='results-table' size="sm">
                         <thead>
                             <tr>
-                                <th># &#9653; </th>
+                                <th># <span>&uarr;</span></th>
                                 <th>TEAM NAME</th>
                                 <th>MP</th>
                                 <th>W</th>
@@ -55,18 +121,21 @@ function Results() {
                         </thead>
 
                         <tbody>
-                            {currentData &&
-                                currentData.map((row, index) => (
-                                    <tr key={index}>
-                                        <td>{row.Poll_Ranking_8}</td>
-                                        <td><a href="#">{row.team_name}</a></td>
-                                        <td>{row.number_matches}</td>
-                                        <td>{row.wins}</td>
-                                        <td>{row.draws}</td>
-                                        <td>{row.losses}</td>
-                                        <td>{row.total_goals}</td>
-                                    </tr>
-                                ))}
+                            {currentData && (typeof currentData === 'object') &&
+                                currentData.map((row, index) => {
+                                    return (
+                                        <tr key={index}>
+                                            <td>{row[`Poll_Ranking_${selectedWeek}`]}</td>
+                                            <td><a href="#">{row.team_name}</a></td>
+                                            <td>{row.number_matches}</td>
+                                            <td>{row.wins}</td>
+                                            <td>{row.draws}</td>
+                                            <td>{row.losses}</td>
+                                            <td>{row.total_goals}</td>
+                                        </tr>
+                                    );
+                                })}
+
                         </tbody>
 
                     </Table>
