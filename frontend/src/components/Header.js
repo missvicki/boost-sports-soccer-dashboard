@@ -16,7 +16,11 @@ function Header(props) {
         if (gender === "Select Gender") {
             props.setDisabledYear(true);
         } else {
-            props.setWeeks([])
+            if (props.selectedYear) {
+                const gender_year = `${gender.toLowerCase()}_${props.selectedYear}`
+                const weeks = years_weeks[gender_year]
+                props.setWeeks(Array.from({ length: `${weeks}` }, (v, k) => k + 1))
+            }
             props.setDisabledYear(false);
         }
     };
@@ -26,9 +30,11 @@ function Header(props) {
         if (year === "Select Year") {
             props.setDisabledWeek(true);
         } else {
-            const gender_year = `${props.selectedGender.toLowerCase()}_${year}`
-            const weeks = years_weeks[gender_year]
-            props.setWeeks(Array.from({length:`${weeks}`},(v,k)=>k+1))
+            if (props.selectedGender) {
+                const gender_year = `${props.selectedGender.toLowerCase()}_${year}`
+                const weeks = years_weeks[gender_year]
+                props.setWeeks(Array.from({ length: `${weeks}` }, (v, k) => k + 1))
+            }
             props.setDisabledWeek(false);
         }
     };
