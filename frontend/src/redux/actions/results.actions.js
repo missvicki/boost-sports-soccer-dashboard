@@ -16,8 +16,6 @@ export const resultsActions = (gender, year, week) => async (dispatch) => {
         let data = response.data
 
         if (response.status == 200){
-            data = data.replace(/NaN/g, "null")
-            data = JSON.parse(data);
             return dispatch(createAction(FETCH_STANDINGS_SUCCESS, { data: data }))
         }else{
             return dispatch(createAction(FETCH_STANDINGS_FAILURE, data))

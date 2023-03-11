@@ -7,7 +7,7 @@ import Header from './Header'
 
 function Results() {
     const dispatch = useDispatch();
-    const { data, error  } = useSelector(state => ({ ...state.resultsState }));
+    const { data, error } = useSelector(state => ({ ...state.resultsState }));
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [genders, setGenders] = useState(["Select Gender", "Men", "Women"]);
@@ -26,7 +26,7 @@ function Results() {
             dispatch(resultsActions())
         }
         setLoading(false)
-    }, [selectedGender, selectedYear, selectedWeek])
+    }, [dispatch, selectedGender, selectedYear, selectedWeek])
 
     const totalPages = Math.ceil(data && data.length / itemsPerPage);
 
@@ -97,7 +97,7 @@ function Results() {
                     < Table responsive className='results-table' size="sm">
                         <thead>
                             <tr>
-                                <th># &#9653; </th>
+                                <th># <span>&uarr;</span></th>
                                 <th>TEAM NAME</th>
                                 <th>MP</th>
                                 <th>W</th>
@@ -110,7 +110,7 @@ function Results() {
                         <tbody>
                             {currentData &&
                                 currentData.map((row, index) => {
-                                    if ((row[`Poll_Ranking_${selectedWeek}`] && row[`Poll_Ranking_${selectedWeek}`] != null)) {
+                                    if ((row[`Poll_Ranking_${selectedWeek}`])) {
                                         return (
                                             <tr key={index}>
                                                 <td>{row[`Poll_Ranking_${selectedWeek}`]}</td>
