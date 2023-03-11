@@ -17,13 +17,14 @@ const resultsReducer = (state = { ...initialState }, actions) => {
             return {
                 ...state,
                 loading: false,
-                data: actions.payload.data
+                data: actions.payload.data,
+                error: null
             }
         case FETCH_STANDINGS_FAILURE:
             return {
                 ...state,
                 loading: false,
-                error: actions.payload.error,
+                error: actions.payload.message,
             }
         default:
             return { ...state }

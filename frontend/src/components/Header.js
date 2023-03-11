@@ -18,7 +18,7 @@ function Header(props) {
         <Container>
             <Row>
                 <Col><h1>
-                    {props.selectedYear && props.selectedYear !== "Select Year" ? props.selectedYear : "2022"} - Week {props.selectedWeek && props.selectedWeek !== "Select Week" ? props.selectedWeek : "8"} {props.selectedGender && props.selectedGender !== "Select Gender" ? props.selectedGender : "Women"} Standings
+                    {props.selectedYear && props.selectedYear !== "Select Year" ? props.selectedYear : ""} Week {props.selectedWeek && props.selectedWeek !== "Select Week" ? props.selectedWeek : ""} {props.selectedGender && props.selectedGender !== "Select Gender" ? props.selectedGender : ""} Standings
                 </h1></Col>
             </Row>
             <Row>

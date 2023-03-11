@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-
-import Table from 'react-bootstrap/Table';
-import Pagination from 'react-bootstrap/Pagination';
+import { Pagination, Container, Row, Col, Table } from 'react-bootstrap';
 import '../styles/table.css';
 import { resultsActions } from '../redux/actions/results.actions';
-
-import Container from 'react-bootstrap/Container';
 import Header from './Header'
 
 function Results() {
     const dispatch = useDispatch();
-    const { data, } = useSelector(state => ({ ...state.resultsState }));
+    const { data, error  } = useSelector(state => ({ ...state.resultsState }));
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [genders, setGenders] = useState(["Select Gender", "Men", "Women"]);
@@ -42,7 +38,44 @@ function Results() {
     const endIndex = startIndex + itemsPerPage;
 
     const currentData = data && data.slice(startIndex, endIndex);
+    const textStyle = { color: 'red' };
 
+    if (error) {
+        return (
+            <div>
+                <Container>
+                    <Header
+                        genders={genders}
+                        years={years}
+                        weeks={weeks}
+                        selectedWeek={selectedWeek}
+                        selectedGender={selectedGender}
+                        selectedYear={selectedYear}
+                        setSelectedWeek={setSelectedWeek}
+                        setSelectedYear={setSelectedYear}
+                        setSelectedGender={setSelectedGender}
+                    />
+                    {loading ? (
+                        <div>
+                            <Row>
+                                <Col>
+                                    <p>Loading Data ...</p>
+                                </Col>
+                            </Row>
+                        </div>
+                    ) : (
+                        <div>
+                            <Row>
+                                <Col>
+                                    <p style={textStyle}>{error}</p>
+                                </Col>
+                            </Row>
+                        </div>
+                    )}
+                </Container>
+            </div>
+        )
+    }
 
     return (
         <div>
@@ -77,10 +110,10 @@ function Results() {
                         <tbody>
                             {currentData &&
                                 currentData.map((row, index) => {
-                                    if ((row[`Poll_Ranking_${selectedWeek}`] && row[`Poll_Ranking_${selectedWeek}`] != null) || row[`Poll_Ranking_8`]) {
+                                    if ((row[`Poll_Ranking_${selectedWeek}`] && row[`Poll_Ranking_${selectedWeek}`] != null)) {
                                         return (
                                             <tr key={index}>
-                                                <td>{row[`Poll_Ranking_${selectedWeek}`] || row[`Poll_Ranking_8`]}</td>
+                                                <td>{row[`Poll_Ranking_${selectedWeek}`]}</td>
                                                 <td><a href="#">{row.team_name}</a></td>
                                                 <td>{row.number_matches}</td>
                                                 <td>{row.wins}</td>

@@ -51,7 +51,6 @@ class AxiosAPi{
         let url = "";
         url = endpoint ? `${endpoint}` : url;
         url = queries ? `${url}${queries}`: url;
-        console.log(url)
 
         const configs = {
             method,
