@@ -65,12 +65,17 @@ def hello_world():
 @app.route("/api/standings", methods=["GET"])
 def fetch_standings():
     """returns all standings"""
-    if len(get_data()) != 0:
-        return (
-            jsonify(
-                get_data()["dashboard_womens_2022"].to_dict(orient="records")
-            ),
-            200,
-        )
-    else:
+    gender = request.args.get("gender")
+    year = request.args.get("year")
+    data = get_data()
+
+    if len(data) == 0:
         return jsonify({"message": "There are no standings"}), 404
+
+    if gender and year:
+        table_name = f"dashboard_{gender.lower()}s_{year}"
+        if table_name not in data:
+            return jsonify({"message": f"No data for {gender} {year}"}), 404
+        return jsonify(data[table_name].to_dict(orient="records")), 200
+
+    return jsonify(data["dashboard_womens_2022"].to_dict(orient="records")), 200

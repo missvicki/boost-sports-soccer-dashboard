@@ -46,11 +46,12 @@ class AxiosAPi{
      *      }
      * */ 
     async apiRequest(method='GET', endpoint, data=null, queries='', options={}){
-        const baseURL = `${this.host}/${this._apiVersion}/`;
+        let baseURL = `${this.host}/${this._apiVersion}/`;
         const axiosInstance = this.createInstance(baseURL);
         let url = "";
         url = endpoint ? `${endpoint}` : url;
-        url = queries ? `${url}/${queries}`: url;
+        url = queries ? `${url}${queries}`: url;
+        console.log(url)
 
         const configs = {
             method,

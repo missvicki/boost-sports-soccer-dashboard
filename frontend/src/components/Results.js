@@ -14,13 +14,23 @@ function Results() {
     const { data, } = useSelector(state => ({ ...state.resultsState }));
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 15
+    const [genders, setGenders] = useState(["Select Gender", "Men", "Women"]);
+    const [years, setYears] = useState(["Select Year", 2020, 2021, 2022]);
+    const [weeks, setWeeks] = useState(["Select Week", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
+    const [selectedGender, setSelectedGender] = useState('');
+    const [selectedYear, setSelectedYear] = useState('');
+    const [selectedWeek, setSelectedWeek] = useState('');
+    const itemsPerPage = 20
 
     useEffect(() => {
         setLoading(true)
-        dispatch(resultsActions());
+        if (selectedGender && selectedYear && selectedWeek && selectedGender != "Select Gender" && selectedYear != "Select Year" && selectedWeek != "Select Week") {
+            dispatch(resultsActions(selectedGender, selectedYear, selectedWeek));
+        } else {
+            dispatch(resultsActions())
+        }
         setLoading(false)
-    }, [dispatch])
+    }, [selectedGender, selectedYear, selectedWeek])
 
     const totalPages = Math.ceil(data && data.length / itemsPerPage);
 
@@ -37,7 +47,17 @@ function Results() {
     return (
         <div>
             <Container>
-                <Header />
+                <Header
+                    genders={genders}
+                    years={years}
+                    weeks={weeks}
+                    selectedWeek={selectedWeek}
+                    selectedGender={selectedGender}
+                    selectedYear={selectedYear}
+                    setSelectedWeek={setSelectedWeek}
+                    setSelectedYear={setSelectedYear}
+                    setSelectedGender={setSelectedGender}
+                />
                 {loading ? (
                     <p>Loading...</p>
                 ) : (<div>
@@ -56,17 +76,23 @@ function Results() {
 
                         <tbody>
                             {currentData &&
-                                currentData.map((row, index) => (
-                                    <tr key={index}>
-                                        <td>{row.Poll_Ranking_8}</td>
-                                        <td><a href="#">{row.team_name}</a></td>
-                                        <td>{row.number_matches}</td>
-                                        <td>{row.wins}</td>
-                                        <td>{row.draws}</td>
-                                        <td>{row.losses}</td>
-                                        <td>{row.total_goals}</td>
-                                    </tr>
-                                ))}
+                                currentData.map((row, index) => {
+                                    if ((row[`Poll_Ranking_${selectedWeek}`] && row[`Poll_Ranking_${selectedWeek}`] != null) || row[`Poll_Ranking_8`]) {
+                                        return (
+                                            <tr key={index}>
+                                                <td>{row[`Poll_Ranking_${selectedWeek}`] || row[`Poll_Ranking_8`]}</td>
+                                                <td><a href="#">{row.team_name}</a></td>
+                                                <td>{row.number_matches}</td>
+                                                <td>{row.wins}</td>
+                                                <td>{row.draws}</td>
+                                                <td>{row.losses}</td>
+                                                <td>{row.total_goals}</td>
+                                            </tr>
+                                        );
+                                    } else {
+                                        return null;
+                                    }
+                                })}
                         </tbody>
 
                     </Table>

@@ -3,10 +3,16 @@ import { createAction } from './helper.actions';
 import ApiHandler from '../../api/AxiosApi';
 
 
-export const resultsActions = () => async (dispatch) => {
+export const resultsActions = (gender, year, week) => async (dispatch) => {
     dispatch(createAction(FETCH_STANDINGS_REQUEST))
     try {
-        const response = await ApiHandler.apiRequest('GET', 'standings', undefined, false)
+        let response = ''
+        if (gender && year && week){
+            response = await ApiHandler.apiRequest('GET', 'standings','', `?gender=${gender}&year=${year}&week=${week}`, false)
+        }
+        else{
+            response = await ApiHandler.apiRequest('GET', 'standings','', '', false)
+        }
         let data = response.data
         data = data.replace(/NaN/g, "null")
         data = JSON.parse(data);
