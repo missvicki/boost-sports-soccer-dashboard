@@ -1,4 +1,4 @@
-name: Backend CI/CD
+name: Frontend CI/CD
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  deploy-backend:
+  deploy-frontend:
     runs-on: ubuntu-latest
     name: Deploy
     steps:
@@ -27,10 +27,10 @@ jobs:
       
     - name: Build and tag Docker image
       run: |
-        aws ecr describe-repositories --repository-name ${{ secrets.ECR_REPOSITORY_NAME_BACKEND }}
-        docker build -t my-image backend
-        docker tag my-image:latest ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME_BACKEND }}:latest
+        docker build -t my-image frontend
+        docker tag my-image:latest ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME_FRONTEND }}:latest
 
     - name: Push Docker image to Amazon ECR
       run: |
-        docker push ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME_BACKEND }}:latest
+        docker push ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME_FRONTEND }}:latest
+        
