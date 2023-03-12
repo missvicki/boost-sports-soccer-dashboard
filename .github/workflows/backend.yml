@@ -27,6 +27,7 @@ jobs:
       
     - name: Build and tag Docker image
       run: |
+        aws ecr describe-repositories --repository-name ${{ secrets.ECR_REPOSITORY_NAME_BACKEND }}
         docker build -t my-image backend
         docker tag my-image:latest ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME_BACKEND }}:latest
 
