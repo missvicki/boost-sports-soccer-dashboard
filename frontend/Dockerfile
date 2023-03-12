@@ -1,6 +1,6 @@
 FROM node:latest
 
-WORKDIR /frontend
+WORKDIR /src/frontend
 
 COPY package.json package-lock.json ./
 
