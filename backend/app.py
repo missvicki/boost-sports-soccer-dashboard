@@ -68,7 +68,27 @@ def fetch_standings():
     gender = request.args.get("gender")
     year = request.args.get("year")
     week = request.args.get("week")
-    data = get_data()
+    
+    ENVIRONMENT = os.environ.get("ENVIRONMENT")
+    if ENVIRONMENT == "dev":
+        data = {}
+        mens_2020 = pd.read_csv("data/dashboard_mens_2020.csv")
+        mens_2021 = pd.read_csv("data/dashboard_mens_2021.csv")
+        mens_2022 = pd.read_csv("data/dashboard_mens_2022.csv")
+        womens_2020 = pd.read_csv("data/dashboard_womens_2020.csv")
+        womens_2021 = pd.read_csv("data/dashboard_womens_2021.csv")
+        womens_2022 = pd.read_csv("data/dashboard_womens_2022.csv")
+        data['dashboard_mens_2020'] = mens_2020
+        data['dashboard_mens_2021'] = mens_2021
+        data['dashboard_mens_2022'] = mens_2022
+        data['dashboard_womens_2020'] = womens_2020
+        data['dashboard_womens_2021'] = womens_2021
+        data['dashboard_womens_2022'] = womens_2022
+        for key, df in data.items():
+            df = rename_columns(df)
+        
+    else:
+        data = get_data()
 
     if len(data) == 0:
         return jsonify({"message": "There are no standings"}), 404
