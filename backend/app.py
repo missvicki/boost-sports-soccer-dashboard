@@ -22,55 +22,10 @@ def get_data():
     AWS_S3_BUCKET = os.environ.get("AWS_S3_BUCKET")
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-
-    s3_client = boto3.client(
-        "s3",
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    )
-
-    try:
-        objects = s3_client.list_objects_v2(Bucket=AWS_S3_BUCKET)["Contents"]
-
-        # read each CSV file into a pandas DataFrame and store it in a dictionary
-        dataframes = {}
-        for obj in objects:
-            # get the object key (file path) for the CSV file
-            file_path = obj["Key"]
-
-            # get a unique name for the DataFrame based on the file path
-            df_name = file_path.split("/")[-1].split(".")[0]
-
-            # read the CSV file into a pandas DataFrame
-            if df_name != "sample_results":
-                obj = s3_client.get_object(Bucket=AWS_S3_BUCKET, Key=file_path)
-                df = pd.read_csv(obj["Body"])
-                rename_columns(df)
-
-                # add the DataFrame to the dictionary with the unique name as the key
-                dataframes[df_name] = df
-
-        return dataframes
-
-    except Exception as e:
-        print(e, "Ooooppsss something happened")
-
-
-@app.route("/")
-def hello_world():
-    return "<p>Welcome to boost dashboard</p>"
-
-
-# get products and add products
-@app.route("/api/standings", methods=["GET"])
-def fetch_standings():
-    """returns all standings"""
-    gender = request.args.get("gender")
-    year = request.args.get("year")
-    week = request.args.get("week")
-
     ENVIRONMENT = os.environ.get("ENVIRONMENT")
+    
     if ENVIRONMENT == "dev":
+        print("++++++++++++++++")
         data = {}
         mens_2020 = pd.read_csv("data/dashboard_mens_2020.csv")
         mens_2021 = pd.read_csv("data/dashboard_mens_2021.csv")
@@ -86,9 +41,56 @@ def fetch_standings():
         data["dashboard_womens_2022"] = womens_2022
         for key, df in data.items():
             df = rename_columns(df)
+            
+        return data
 
     else:
-        data = get_data()
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        )
+        try:
+            objects = s3_client.list_objects_v2(Bucket=AWS_S3_BUCKET)["Contents"]
+
+            # read each CSV file into a pandas DataFrame and store it in a dictionary
+            dataframes = {}
+            for obj in objects:
+                # get the object key (file path) for the CSV file
+                file_path = obj["Key"]
+
+                # get a unique name for the DataFrame based on the file path
+                df_name = file_path.split("/")[-1].split(".")[0]
+
+                # read the CSV file into a pandas DataFrame
+                if df_name != "sample_results":
+                    obj = s3_client.get_object(Bucket=AWS_S3_BUCKET, Key=file_path)
+                    df = pd.read_csv(obj["Body"])
+                    rename_columns(df)
+
+                    # add the DataFrame to the dictionary with the unique name as the key
+                    dataframes[df_name] = df
+
+            return dataframes
+
+        except Exception as e:
+            print(e, "Ooooppsss something happened")
+
+
+@app.route("/")
+def hello_world():
+    return "<p>Welcome to boost dashboard</p>"
+
+
+# get products and add products
+@app.route("/api/standings", methods=["GET"])
+def fetch_standings():
+    """returns all standings"""
+    gender = request.args.get("gender")
+    year = request.args.get("year")
+    week = request.args.get("week")
+
+    data = get_data()
 
     if len(data) == 0:
         return jsonify({"message": "There are no standings"}), 404
