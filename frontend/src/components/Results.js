@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination, Container, Row, Col, Table } from 'react-bootstrap';
 import '../styles/table.css';
 import { resultsActions } from '../redux/actions/results.actions';
-import Header from './Header'
+import Header from './Header';
+
 
 function Results() {
     const dispatch = useDispatch();
@@ -23,7 +25,9 @@ function Results() {
 
     useEffect(() => {
         setLoading(true)
-        if (selectedGender && selectedYear && selectedWeek && selectedGender != "Select Gender" && selectedYear != "Select Year" && selectedWeek != "Select Week") {
+        if (selectedGender && selectedYear &&
+            selectedWeek && selectedGender != "Select Gender"
+            && selectedYear != "Select Year" && selectedWeek != "Select Week") {
             dispatch(resultsActions(selectedGender, selectedYear, selectedWeek));
         } else {
             dispatch(resultsActions())
@@ -126,7 +130,11 @@ function Results() {
                                     return (
                                         <tr key={index}>
                                             <td>{row[`Poll_Ranking_${selectedWeek}`]}</td>
-                                            <td><a href="#">{row.team_name}</a></td>
+                                            <td>
+                                                <Link
+                                                    to={`${row.team_name}-performance?gender=${selectedGender}&year=${selectedYear}&team=${row.team_name}`}>{row.team_name}
+                                                </Link>
+                                            </td>
                                             <td>{row.number_matches}</td>
                                             <td>{row.wins}</td>
                                             <td>{row.draws}</td>
@@ -151,8 +159,9 @@ function Results() {
                         ))}
                     </Pagination>
                 </div>
-                )}
-            </Container>
+                )
+                }
+            </Container >
         </div >
     );
 }

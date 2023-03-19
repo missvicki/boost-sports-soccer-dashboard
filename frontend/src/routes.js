@@ -1,18 +1,20 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import App from './App';
-import './index.css';
+import Standings from './pages/Standings';
+import Performance from './pages/Performance';
 
 function PathRoutes() {
+
   return (
-      <div className="App">
-        <BrowserRouter>
-          <Routes>
-          <Route path="/" element={<App/>} />
-          </Routes>
-        </BrowserRouter>
-      </div>
+    <div>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Standings />} />
+          <Route path=":teamName-performance" element={<Performance />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
 }
 

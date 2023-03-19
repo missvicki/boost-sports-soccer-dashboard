@@ -23,9 +23,8 @@ def get_data():
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
     ENVIRONMENT = os.environ.get("ENVIRONMENT")
-    
+
     if ENVIRONMENT == "dev":
-        print("++++++++++++++++")
         data = {}
         mens_2020 = pd.read_csv("data/dashboard_mens_2020.csv")
         mens_2021 = pd.read_csv("data/dashboard_mens_2021.csv")
@@ -41,7 +40,7 @@ def get_data():
         data["dashboard_womens_2022"] = womens_2022
         for key, df in data.items():
             df = rename_columns(df)
-            
+
         return data
 
     else:
@@ -51,7 +50,9 @@ def get_data():
             aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
         )
         try:
-            objects = s3_client.list_objects_v2(Bucket=AWS_S3_BUCKET)["Contents"]
+            objects = s3_client.list_objects_v2(Bucket=AWS_S3_BUCKET)[
+                "Contents"
+            ]
 
             # read each CSV file into a pandas DataFrame and store it in a dictionary
             dataframes = {}
@@ -64,7 +65,9 @@ def get_data():
 
                 # read the CSV file into a pandas DataFrame
                 if df_name != "sample_results":
-                    obj = s3_client.get_object(Bucket=AWS_S3_BUCKET, Key=file_path)
+                    obj = s3_client.get_object(
+                        Bucket=AWS_S3_BUCKET, Key=file_path
+                    )
                     df = pd.read_csv(obj["Body"])
                     rename_columns(df)
 
@@ -93,7 +96,7 @@ def fetch_standings():
     data = get_data()
 
     if len(data) == 0:
-        return jsonify({"message": "There are no standings"}), 404
+        return jsonify({"message": "There is no data"}), 404
 
     if gender and year and week:
         table_name = f"dashboard_{gender.lower()}s_{year}"
@@ -125,3 +128,50 @@ def fetch_standings():
         ),
         404,
     )
+
+
+@app.route("/api/team-performance", methods=["GET"])
+def fetch_performances():
+    """return all team performances"""
+    team = request.args.get("team")
+    gender = request.args.get("gender")
+    year = request.args.get("year")
+
+    data = get_data()
+
+    if len(data) == 0:
+        return jsonify({"message": "There is no data"}), 404
+
+    if gender and year and team:
+        table_name = f"dashboard_{gender.lower()}s_{year}"
+        if table_name not in data:
+            return jsonify({"message": f"No data for {gender} {year}"}), 404
+        df = data[table_name].copy()
+        poll_ranking_columns = [
+            column
+            for column in list(df.columns)
+            if column.startswith("Poll_Ranking")
+        ]
+        melted_data = df.melt(
+            id_vars=["team_name"],
+            value_vars=poll_ranking_columns,
+            var_name="week",
+            value_name="ranking",
+        )
+        grouped_data = melted_data.groupby("team_name", group_keys=False)
+        df = grouped_data.apply(lambda x: pd.DataFrame(x)).reset_index(
+            drop=True
+        )
+        df = df.replace(regex=r'^Poll_Ranking_(\d+)$', value=r'\1') #replace poll_ranking_1 with poll_ranking
+        if team in list(df["team_name"]):
+            df = df[df["team_name"] == team]
+            df = df[df.ranking.notnull()] 
+            df = df.to_dict(orient="records")
+            final = {"data": df, "status":200}
+        else:
+            final = {
+                        "message": f"No data found for this team for this {year} {gender}",
+                        "status": 404
+                    }
+    
+    return jsonify(final), final['status']
