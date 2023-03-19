@@ -43,6 +43,10 @@ function Header(props) {
         props.setSelectedWeek(week);
     };
 
+    const handleTeamSelect = (team) => {
+        props.setSelectedTeam(team);
+    };
+
     return (
         <Container>
             <Row>
@@ -65,14 +69,28 @@ function Header(props) {
                         ))}
                     </DropdownButton>
                 </Col>
-                <Col>
-                    {props.disabled}
-                    <DropdownButton disabled={props.disabledWeek} id="dropdown-basic-button" variant='' title={props.selectedWeek || 'Select Week'} onSelect={handleWeekSelect}>
-                        {props.weeks.map(week => (
-                            <Dropdown.Item key={week} eventKey={week}>{week}</Dropdown.Item>
-                        ))}
-                    </DropdownButton>
-                </Col>
+                {
+                    props.team ? (
+                        <Col>
+                            {props.disabled}
+                            <DropdownButton disabled={props.disabledTeam} id="dropdown-basic-button" variant='' title={props.selectedTeam || 'Select Team'} onSelect={handleTeamSelect}>
+                                {props.teams.map(team => (
+                                    <Dropdown.Item key={team} eventKey={team}>{team}</Dropdown.Item>
+                                ))}
+                            </DropdownButton>
+                        </Col>
+
+                    ) : (
+                        <Col>
+                            {props.disabled}
+                            <DropdownButton disabled={props.disabledWeek} id="dropdown-basic-button" variant='' title={props.selectedWeek || 'Select Week'} onSelect={handleWeekSelect}>
+                                {props.weeks.map(week => (
+                                    <Dropdown.Item key={week} eventKey={week}>{week}</Dropdown.Item>
+                                ))}
+                            </DropdownButton>
+                        </Col>
+                    )
+                }
             </Row>
         </Container>
     );
