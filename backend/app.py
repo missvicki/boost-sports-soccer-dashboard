@@ -3,6 +3,7 @@ from flask_cors import CORS
 import boto3
 import pandas as pd
 import os
+from pprint import pprint
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -130,6 +131,53 @@ def fetch_standings():
     )
 
 
+def preprocess_rating_rankings(df):
+    poll_ranking_columns = [
+        column
+        for column in list(df.columns)
+        if column.startswith("Poll_Ranking")
+    ]
+    poll_rating_columns = [
+        column
+        for column in list(df.columns)
+        if column.startswith("Poll_Rating")
+    ]
+    # melt poll_ranking columns
+    ranking_df = pd.melt(
+        df,
+        id_vars=["team_name"],
+        value_vars=poll_ranking_columns,
+        var_name="column",
+    )
+    ranking_df["week"] = (
+        ranking_df["column"].str.extract("(\d+)", expand=False).astype(int)
+    )
+    ranking_df = ranking_df.rename(columns={"value": "ranking"})[
+        ["team_name", "week", "ranking"]
+    ]
+
+    # melt poll_rating columns
+    rating_df = pd.melt(
+        df,
+        id_vars=["team_name"],
+        value_vars=poll_rating_columns,
+        var_name="column",
+    )
+    rating_df["week"] = (
+        rating_df["column"].str.extract("(\d+)", expand=False).astype(int)
+    )
+    rating_df = rating_df.rename(columns={"value": "rating"})[
+        ["team_name", "week", "rating"]
+    ]
+
+    # merge ranking and rating dataframes
+    result_df = pd.merge(ranking_df, rating_df, on=["team_name", "week"])
+
+    # rating change to two decimals
+    result_df["rating"] = result_df["rating"].round(2)
+    return result_df
+
+
 @app.route("/api/team-performance", methods=["GET"])
 def fetch_performances():
     """return all team performances"""
@@ -147,31 +195,18 @@ def fetch_performances():
         if table_name not in data:
             return jsonify({"message": f"No data for {gender} {year}"}), 404
         df = data[table_name].copy()
-        poll_ranking_columns = [
-            column
-            for column in list(df.columns)
-            if column.startswith("Poll_Ranking")
-        ]
-        melted_data = df.melt(
-            id_vars=["team_name"],
-            value_vars=poll_ranking_columns,
-            var_name="week",
-            value_name="ranking",
-        )
-        grouped_data = melted_data.groupby("team_name", group_keys=False)
-        df = grouped_data.apply(lambda x: pd.DataFrame(x)).reset_index(
-            drop=True
-        )
-        df = df.replace(regex=r'^Poll_Ranking_(\d+)$', value=r'\1') #replace poll_ranking_1 with poll_ranking
+
+        df = preprocess_rating_rankings(df)  # preprocess data
+
         if team in list(df["team_name"]):
             df = df[df["team_name"] == team]
-            df = df[df.ranking.notnull()] 
+            df = df[df.ranking.notnull()]
             df = df.to_dict(orient="records")
-            final = {"data": df, "status":200}
+            final = {"data": df, "status": 200}
         else:
             final = {
-                        "message": f"No data found for this team for this {year} {gender}",
-                        "status": 404
-                    }
-    
-    return jsonify(final), final['status']
+                "message": f"No data found for this team for this {year} {gender}",
+                "status": 404,
+            }
+
+    return jsonify(final), final["status"]

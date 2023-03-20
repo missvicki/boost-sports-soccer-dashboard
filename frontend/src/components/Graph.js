@@ -17,11 +17,22 @@ function LineChart(props, key) {
         labels: data.map((data) => data.week),
         datasets: [
             {
+                label: "Rankings",
                 data: data.map((data) => data.ranking),
                 fill: false,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2,
+                borderColor: 'rgb(53, 162, 235)',
+                backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                yAxisID: 'y',
+            },
+            {
+                label: "Ratings",
+                data: data.map((data) => data.rating),
+                fill: false,
+                borderColor: 'rgb(53, 162, 235)',
+                backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                yAxisID: 'y1',
             }
         ]
     };
@@ -32,25 +43,30 @@ function LineChart(props, key) {
                 display: true,
                 text: `Rankings for ${props.gender} in ${props.year}`
             },
-            legend: {
-                display: false
-            }
         },
         scales: {
             y: {
-              title: {
-                display: true,
-                text: 'Rankings'
-              }
+                title: {
+                    display: true,
+                    text: 'Rankings'
+                }
             },
             x: {
                 title: {
-                  display: true,
-                  text: 'Weeks'
+                    display: true,
+                    text: 'Weeks'
                 }
-              }
-          }    
-        
+            },
+            y1: {
+                title: {
+                    display: true,
+                    text: 'Ratings',
+                },
+                type: 'linear',
+                position: 'right',
+            },
+        }
+
     }
 
     return (
