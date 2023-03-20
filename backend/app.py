@@ -175,6 +175,9 @@ def preprocess_rating_rankings(df):
 
     # rating change to two decimals
     result_df["rating"] = result_df["rating"].round(2)
+    
+    # ranking to int
+    result_df["ranking"] = pd.to_numeric(result_df["ranking"], downcast='integer')
     return result_df
 
 
