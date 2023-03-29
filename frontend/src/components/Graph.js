@@ -49,6 +49,9 @@ function LineChart(props, key) {
                 title: {
                     display: true,
                     text: 'Rankings'
+                },
+                ticks: {
+                    stepSize: 1
                 }
             },
             x: {
